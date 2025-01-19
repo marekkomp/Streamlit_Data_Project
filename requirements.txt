@@ -3,4 +3,3 @@ pandas
 openpyxl
 beautifulsoup4
 xlsxwriter
-tabulate
