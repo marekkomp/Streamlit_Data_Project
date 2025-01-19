@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 
 # Funkcja do porównywania danych
+def compare_csv_files(df1, df2):
+    id_column = 'ID oferty'
 
-def compare_csv_files(df1, df2, id_column):
     # Wiersze, które są tylko w drugim pliku (nowe ID)
     new_rows = df2[~df2[id_column].isin(df1[id_column])]
 
@@ -39,19 +40,15 @@ if uploaded_file1 and uploaded_file2:
     st.subheader("Podgląd drugiego pliku")
     st.dataframe(df2)
 
-    # Wybór kolumny ID do porównania
-    id_column = st.selectbox("Wybierz kolumnę ID do porównania", options=df1.columns.intersection(df2.columns))
+    # Porównanie plików
+    differences = compare_csv_files(df1, df2)
 
-    if id_column:
-        # Porównanie plików
-        differences = compare_csv_files(df1, df2, id_column)
-
-        # Wyświetlanie wyników
-        st.subheader("Różnice między plikami")
-        if not differences.empty:
-            st.dataframe(differences)
-        else:
-            st.write("Brak różnic między plikami.")
+    # Wyświetlanie wyników
+    st.subheader("Różnice między plikami")
+    if not differences.empty:
+        st.dataframe(differences)
+    else:
+        st.write("Brak różnic między plikami.")
 
 else:
     st.info("Wgraj oba pliki CSV, aby rozpocząć porównanie.")
