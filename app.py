@@ -28,9 +28,6 @@ def przetworz_opis_debug(json_opis):
                             li.insert_after("\n")  # Dodaj nową linię po każdej pozycji
                         ul.unwrap()  # Usuń znacznik <ul>
                     
-                    # Debug: pokaż HTML po przetworzeniu list
-                    st.text("\n[DEBUG] HTML po przetworzeniu list:\n" + soup.prettify())
-                    
                     # Zamień znaczniki <h2>, <h3>, itp., na nowe wiersze
                     for header in soup.find_all(["h1", "h2", "h3", "h4"]):
                         header.insert_before("\n")  # Przerwa przed nagłówkiem
@@ -40,9 +37,6 @@ def przetworz_opis_debug(json_opis):
                     for p in soup.find_all("p"):
                         p.insert_before("\n")  # Przerwa przed akapitem
                         p.insert_after("\n")  # Przerwa po akapicie
-                    
-                    # Debug: pokaż HTML po przetworzeniu nagłówków i akapitów
-                    st.text("\n[DEBUG] HTML po przetworzeniu nagłówków i akapitów:\n" + soup.prettify())
                     
                     # Usuń wszystkie znaczniki HTML, zachowując formatowanie
                     czysty_tekst = soup.get_text(separator="\n")
@@ -58,31 +52,33 @@ def przetworz_opis_debug(json_opis):
         return ""
 
 # Wczytywanie danych tylko dla jednej pozycji
-def wczytaj_dane_dla_id(id_pozycji):
+def wczytaj_dane_dla_id_oferty(id_oferty):
     # Wczytaj plik CSV
     data = pd.read_csv("1.csv")
     
-    # Znajdź wiersz z wybranym ID
-    if "ID" in data.columns:
-        wybrana_pozycja = data[data["ID"] == id_pozycji]
+    # Znajdź wiersz z wybranym ID oferty
+    if "ID oferty" in data.columns:
+        wybrana_pozycja = data[data["ID oferty"] == id_oferty]
         if wybrana_pozycja.empty:
-            st.error(f"Nie znaleziono pozycji o ID {id_pozycji}")
+            st.error(f"Nie znaleziono pozycji o ID oferty {id_oferty}")
             return None
         return wybrana_pozycja
     else:
-        st.error("Kolumna 'ID' nie została znaleziona w danych.")
+        st.error("Kolumna 'ID oferty' nie została znaleziona w danych.")
         return None
 
-# Wczytaj dane dla konkretnego ID
-wybrany_id = 11132647668
-data = wczytaj_dane_dla_id(wybrany_id)
+# Wybór ID oferty
+id_oferty = st.sidebar.text_input("Podaj ID oferty do analizy", value="11132647668")
+
+# Wczytaj dane dla wybranego ID oferty
+data = wczytaj_dane_dla_id_oferty(id_oferty)
 
 if data is not None:
     # Przetwórz opis tylko dla tej pozycji
     if "Opis oferty" in data.columns:
         opis = data["Opis oferty"].iloc[0]
         przetworzony_opis = przetworz_opis_debug(opis)
-        st.write(f"Przetworzony opis dla ID {wybrany_id}:")
+        st.write(f"Przetworzony opis dla ID oferty {id_oferty}:")
         st.text(przetworzony_opis)
     else:
         st.error("Kolumna 'Opis oferty' nie została znaleziona w danych.")
