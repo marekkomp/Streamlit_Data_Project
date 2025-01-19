@@ -1,36 +1,33 @@
 import streamlit as st
 import pandas as pd
+import re  # Do pracy z wyrażeniami regularnymi
+
+# Funkcja do filtrowania opisu
+def filtruj_opis(opis):
+    if isinstance(opis, str):
+        # Zatrzymaj tekst do pierwszego wystąpienia "items":[{"type":"IMAGE"
+        wzorzec = r'{"items":\[{"type":"IMAGE".*'
+        opis_skrócony = re.split(wzorzec, opis)[0]
+
+        # Usuń wszystko poza tekstem w liniach
+        opis_czysty = re.sub(r'[^a-zA-Z0-9.,<>/=" ]', '', opis_skrócony)
+        return opis_czysty.strip()
+    return ""
 
 # Wczytywanie danych
 try:
-    # Wczytaj plik CSV (upewnij się, że nazwa pliku się zgadza)
+    # Wczytaj plik CSV
     data = pd.read_csv("1.csv")
 
-    st.title("Aplikacja do filtrowania danych")
-    st.write("Poniżej znajdują się dane z pliku z interaktywnymi filtrami.")
+    st.title("Aplikacja z filtrowaniem opisów")
+    st.write("Filtrowanie danych oraz modyfikowanie kolumny opisowej zgodnie z podanymi regułami.")
 
-    # Filtr dla kolumny "Status oferty"
-    status_options = data["Status oferty"].dropna().unique()  # Unikalne wartości w kolumnie
-    selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
+    # Dodaj filtr dla opisów
+    if "Opis oferty" in data.columns:
+        data["Opis oferty (przefiltrowany)"] = data["Opis oferty"].apply(filtruj_opis)
 
-    # Filtr dla kolumny "Kategoria główna"
-    category_options = data["Kategoria główna"].dropna().unique()
-    selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
-
-    # Filtr dla kolumny "Liczba sztuk" (ręczne wpisanie zakresu)
-    min_sztuk = st.sidebar.number_input("Minimalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].min()))
-    max_sztuk = st.sidebar.number_input("Maksymalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].max()))
-
-    # Filtrowanie danych
-    filtered_data = data[
-        (data["Status oferty"].isin(selected_status)) &
-        (data["Kategoria główna"].isin(selected_category)) &
-        (data["Liczba sztuk"] >= min_sztuk) &
-        (data["Liczba sztuk"] <= max_sztuk)
-    ]
-
-    # Wyświetlanie przefiltrowanych danych
-    st.dataframe(filtered_data)
+    # Wyświetl dane z przefiltrowanym opisem
+    st.dataframe(data)
 
 except FileNotFoundError:
     st.error("Nie znaleziono pliku CSV. Upewnij się, że plik jest w repozytorium i nazwa jest poprawna.")
