@@ -69,17 +69,41 @@ selected_brand = st.sidebar.multiselect("Wybierz markę", brand_options, default
 status_options = data["Status oferty"].dropna().unique() if "Status oferty" in data.columns else []
 selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
 
-# Liczba przedmiotów
-min_items = st.sidebar.number_input(
-    "Minimalna liczba przedmiotów",
-    min_value=0,
-    value=int(data["Liczba przedmiotów"].min()) if "Liczba przedmiotów" in data.columns else 0,
+# Kategoria główna
+category_options = data["Kategoria główna"].dropna().unique() if "Kategoria główna" in data.columns else []
+selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
+
+# Typ pamięci RAM
+ram_type_options = data["Typ pamięci RAM"].dropna().unique() if "Typ pamięci RAM" in data.columns else []
+selected_ram_type = st.sidebar.multiselect("Wybierz typ pamięci RAM", ram_type_options, default=ram_type_options)
+
+# Wielkość pamięci RAM
+ram_size_options = data["Wielkość pamięci RAM"].dropna().unique() if "Wielkość pamięci RAM" in data.columns else []
+selected_ram_size = st.sidebar.multiselect("Wybierz wielkość pamięci RAM", ram_size_options, default=ram_size_options)
+
+# Typ dysku twardego
+hdd_type_options = data["Typ dysku twardego"].dropna().unique() if "Typ dysku twardego" in data.columns else []
+selected_hdd_type = st.sidebar.multiselect("Wybierz typ dysku twardego", hdd_type_options, default=hdd_type_options)
+
+# Pojemność dysku [GB]
+hdd_capacity_options = data["Pojemność dysku [GB]"].dropna().unique() if "Pojemność dysku [GB]" in data.columns else []
+selected_hdd_capacity = st.sidebar.multiselect("Wybierz pojemność dysku [GB]", hdd_capacity_options, default=hdd_capacity_options)
+
+# Model procesora.1
+cpu_model_options = data["Model procesora.1"].dropna().unique() if "Model procesora.1" in data.columns else []
+selected_cpu_model = st.sidebar.multiselect("Wybierz model procesora", cpu_model_options, default=cpu_model_options)
+
+# Cena PL
+min_price = st.sidebar.number_input(
+    "Minimalna cena (PLN)",
+    min_value=0.0,
+    value=float(data["Cena PL"].min()) if "Cena PL" in data.columns else 0.0,
 )
 
-max_items = st.sidebar.number_input(
-    "Maksymalna liczba przedmiotów",
-    min_value=0,
-    value=int(data["Liczba przedmiotów"].max()) if "Liczba przedmiotów" in data.columns else 0,
+max_price = st.sidebar.number_input(
+    "Maksymalna cena (PLN)",
+    min_value=0.0,
+    value=float(data["Cena PL"].max()) if "Cena PL" in data.columns else 0.0,
 )
 
 # Filtrowanie danych
@@ -96,18 +120,32 @@ if "Marka" in data.columns:
 if "Status oferty" in data.columns:
     filtered_data = filtered_data[filtered_data["Status oferty"].isin(selected_status)]
 
-if "Liczba przedmiotów" in data.columns:
+if "Kategoria główna" in data.columns:
+    filtered_data = filtered_data[filtered_data["Kategoria główna"].isin(selected_category)]
+
+if "Typ pamięci RAM" in data.columns:
+    filtered_data = filtered_data[filtered_data["Typ pamięci RAM"].isin(selected_ram_type)]
+
+if "Wielkość pamięci RAM" in data.columns:
+    filtered_data = filtered_data[filtered_data["Wielkość pamięci RAM"].isin(selected_ram_size)]
+
+if "Typ dysku twardego" in data.columns:
+    filtered_data = filtered_data[filtered_data["Typ dysku twardego"].isin(selected_hdd_type)]
+
+if "Pojemność dysku [GB]" in data.columns:
+    filtered_data = filtered_data[filtered_data["Pojemność dysku [GB]"].isin(selected_hdd_capacity)]
+
+if "Model procesora.1" in data.columns:
+    filtered_data = filtered_data[filtered_data["Model procesora.1"].isin(selected_cpu_model)]
+
+if "Cena PL" in data.columns:
     filtered_data = filtered_data[
-        (filtered_data["Liczba przedmiotów"] >= min_items) & (filtered_data["Liczba przedmiotów"] <= max_items)
+        (filtered_data["Cena PL"] >= min_price) & (filtered_data["Cena PL"] <= max_price)
     ]
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
-st.write("Tabela zawiera oryginalne dane oraz przetworzony opis w nowej kolumnie.")
-
-# Wyświetl liczbę pozycji
-st.write(f"Liczba pozycji po filtrach: {len(filtered_data)}")
-
+st.write("Tabela zawiera oryginalne dane oraz przetworzony opis w nowej kolumnie:")
 st.dataframe(filtered_data)
 
 # Pobieranie przetworzonej tabeli
