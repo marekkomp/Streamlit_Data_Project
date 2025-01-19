@@ -23,49 +23,46 @@ def przetworz_opis(json_opis):
     except Exception as e:
         return f"Błąd podczas przetwarzania: {e}"
 
-# Wczytywanie danych
-try:
+# Wczytywanie danych i przetwarzanie opisów (tylko raz)
+@st.cache_data
+def wczytaj_i_przetworz_dane():
     # Wczytaj plik CSV
     data = pd.read_csv("1.csv")
-
-    # Przetwórz kolumnę "Opis oferty"
+    
+    # Przetwórz opisy
     if "Opis oferty" in data.columns:
         data["Opis oferty (czysty tekst)"] = data["Opis oferty"].apply(przetworz_opis)
     else:
         st.warning("Kolumna 'Opis oferty' nie została znaleziona w danych.")
 
-    # Wyświetlanie danych
-    st.title("Aplikacja do filtrowania danych z czyszczeniem opisów")
-    st.write("Tabela zawiera wszystkie dane wraz z przetworzonymi opisami.")
+    return data
 
-    # Filtr dla kolumny "Status oferty"
-    status_options = data["Status oferty"].dropna().unique()  # Unikalne wartości w kolumnie
-    selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
+# Wczytaj dane (z pamięcią cache)
+data = wczytaj_i_przetworz_dane()
 
-    # Filtr dla kolumny "Kategoria główna"
-    category_options = data["Kategoria główna"].dropna().unique()
-    selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
+# Wyświetlanie interfejsu
+st.title("Aplikacja do filtrowania danych z czyszczeniem opisów")
+st.write("Tabela zawiera wszystkie dane wraz z przetworzonymi opisami.")
 
-    # Filtr dla kolumny "Liczba sztuk"
-    min_sztuk = st.sidebar.number_input("Minimalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].min()))
-    max_sztuk = st.sidebar.number_input("Maksymalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].max()))
+# Filtr dla kolumny "Status oferty"
+status_options = data["Status oferty"].dropna().unique()  # Unikalne wartości w kolumnie
+selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
 
-    # Filtrowanie danych
-    filtered_data = data[
-        (data["Status oferty"].isin(selected_status)) &
-        (data["Kategoria główna"].isin(selected_category)) &
-        (data["Liczba sztuk"] >= min_sztuk) &
-        (data["Liczba sztuk"] <= max_sztuk)
-    ]
+# Filtr dla kolumny "Kategoria główna"
+category_options = data["Kategoria główna"].dropna().unique()
+selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
 
-    # Wyświetlanie przefiltrowanych danych z czystymi opisami
-    st.dataframe(filtered_data)
+# Filtr dla kolumny "Liczba sztuk"
+min_sztuk = st.sidebar.number_input("Minimalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].min()))
+max_sztuk = st.sidebar.number_input("Maksymalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].max()))
 
-except FileNotFoundError:
-    st.error("Nie znaleziono pliku CSV. Upewnij się, że plik jest w repozytorium i nazwa jest poprawna.")
+# Filtrowanie danych
+filtered_data = data[
+    (data["Status oferty"].isin(selected_status)) &
+    (data["Kategoria główna"].isin(selected_category)) &
+    (data["Liczba sztuk"] >= min_sztuk) &
+    (data["Liczba sztuk"] <= max_sztuk)
+]
 
-except KeyError as e:
-    st.error(f"Brakuje kolumny w danych: {e}")
-
-except Exception as e:
-    st.error(f"Wystąpił błąd: {e}")
+# Wyświetlanie przefiltrowanych danych
+st.dataframe(filtered_data)
