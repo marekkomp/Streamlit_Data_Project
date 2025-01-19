@@ -27,7 +27,7 @@ def przetworz_opis(json_opis):
 @st.cache_data
 def wczytaj_i_przetworz_dane():
     # Wczytaj plik CSV
-    data = pd.read_csv("test.csv")
+    data = pd.read_csv("1.csv")
     
     # Przetwórz opisy
     if "Opis oferty" in data.columns:
