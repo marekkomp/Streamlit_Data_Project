@@ -55,20 +55,21 @@ id_oferty = st.sidebar.text_input("Podaj ID oferty do analizy", value="111326476
 # Wczytaj dane
 data = wczytaj_dane()
 
+# Przetwórz opisy i dodaj jako nową kolumnę
+if "Opis oferty" in data.columns:
+    data["Przetworzony opis"] = data["Opis oferty"].apply(przetworz_opis)
+
+# Wyświetl tabelę z przetworzonymi opisami
+st.title("Tabela z przetworzonymi opisami")
+st.write("Tabela zawiera oryginalne dane oraz przetworzony opis w nowej kolumnie:")
+st.dataframe(data)
+
 # Znajdź pozycję na podstawie ID oferty
 if "ID oferty" in data.columns:
     wybrana_pozycja = data[data["ID oferty"] == id_oferty]
     if not wybrana_pozycja.empty:
         st.write(f"Znaleziono ofertę o ID: {id_oferty}")
         st.write(wybrana_pozycja)
-
-        if "Opis oferty" in wybrana_pozycja.columns:
-            opis = wybrana_pozycja["Opis oferty"].iloc[0]
-            przetworzony_opis = przetworz_opis(opis)
-            st.write("Przetworzony opis:")
-            st.text(przetworzony_opis)
-        else:
-            st.error("Kolumna 'Opis oferty' nie istnieje w danych.")
     else:
         st.error(f"Nie znaleziono pozycji o ID oferty {id_oferty}.")
 else:
