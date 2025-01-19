@@ -95,9 +95,9 @@ selected_core_count = st.sidebar.multiselect("Wybierz liczbę rdzeni procesora",
 gpu_type_options = data["Rodzaj karty graficznej"].dropna().unique() if "Rodzaj karty graficznej" in data.columns else []
 selected_gpu_type = st.sidebar.multiselect("Wybierz rodzaj karty graficznej", gpu_type_options, default=gpu_type_options)
 
-# Złącza
-connectors_options = data["Złącza"].dropna().unique() if "Złącza" in data.columns else []
-selected_connectors = st.sidebar.multiselect("Wybierz złącza", connectors_options, default=connectors_options)
+# Rozdzielczość (px)
+resolution_options = data["Rozdzielczość (px)"].dropna().unique() if "Rozdzielczość (px)" in data.columns else []
+selected_resolution = st.sidebar.multiselect("Wybierz rozdzielczość (px)", resolution_options, default=resolution_options)
 
 # Filtrowanie danych
 filtered_data = data.copy()
@@ -124,8 +124,8 @@ if "Liczba rdzeni procesora" in data.columns:
 if "Rodzaj karty graficznej" in data.columns:
     filtered_data = filtered_data[filtered_data["Rodzaj karty graficznej"].isin(selected_gpu_type)]
 
-if "Złącza" in data.columns:
-    filtered_data = filtered_data[filtered_data["Złącza"].isin(selected_connectors)]
+if "Rozdzielczość (px)" in data.columns:
+    filtered_data = filtered_data[filtered_data["Rozdzielczość (px)"].isin(selected_resolution)]
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
