@@ -3,17 +3,13 @@ import pandas as pd
 
 # Wczytywanie danych
 try:
-    # Wczytaj dane z CSV
-    data = pd.read_csv("1.csv")
-
-    # Wyciągnięcie kluczowych kolumn
-    kluczowe_kolumny = ["Status oferty", "Liczba sztuk", "Cena PL", "Tytuł oferty"]
-    dane_filtr = data[kluczowe_kolumny]
+    # Wczytaj cały plik CSV
+    data = pd.read_csv("test.csv")
 
     # Wyświetlanie danych
-    st.title("Podgląd danych ofert")
-    st.write("Poniżej znajdują się dane z wybranych kolumn:")
-    st.write(dane_filtr.head(50))  # Wyświetl tylko 50 pierwszych wierszy
+    st.title("Pełny podgląd danych")
+    st.write("Poniżej znajdują się wszystkie kolumny i wiersze danych z pliku CSV:")
+    st.dataframe(data)  # Dynamiczny podgląd tabeli
 
 except FileNotFoundError:
     st.error("Nie znaleziono pliku CSV. Upewnij się, że plik jest w repozytorium i nazwa jest poprawna.")
