@@ -33,7 +33,7 @@ def przetworz_opis(json_opis):
                     czysty_tekst = "\n".join(line.strip() for line in czysty_tekst.splitlines() if line.strip())
                     teksty.append(czysty_tekst)
 
-        return "\n\n".join(teksty)
+        return "\n\n".join(tekstów)
     except Exception as e:
         st.error(f"Błąd podczas przetwarzania opisu: {e}")
         return ""
@@ -58,6 +58,13 @@ if "Opis oferty" in data.columns:
 
 # Filtry
 st.sidebar.header("Filtry")
+# Tytuł oferty
+search_title = st.sidebar.text_input("Szukaj po tytule oferty", value="")
+
+# Marka
+brand_options = data["Marka"].dropna().unique() if "Marka" in data.columns else []
+selected_brand = st.sidebar.multiselect("Wybierz markę", brand_options, default=brand_options)
+
 # Status oferty
 status_options = data["Status oferty"].dropna().unique() if "Status oferty" in data.columns else []
 selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
@@ -77,6 +84,23 @@ max_sztuk = st.sidebar.number_input(
     "Maksymalna liczba sztuk",
     min_value=0,
     value=int(data["Liczba sztuk"].max()) if "Liczba sztuk" in data.columns else 0,
+)
+
+# Ekran dotykowy
+touchscreen_options = data["Ekran dotykowy"].dropna().unique() if "Ekran dotykowy" in data.columns else []
+selected_touchscreen = st.sidebar.multiselect("Wybierz opcję ekranu dotykowego", touchscreen_options, default=touchscreen_options)
+
+# Cena PL
+min_price = st.sidebar.number_input(
+    "Minimalna cena (PLN)",
+    min_value=0.0,
+    value=float(data["Cena PL"].min()) if "Cena PL" in data.columns else 0.0,
+)
+
+max_price = st.sidebar.number_input(
+    "Maksymalna cena (PLN)",
+    min_value=0.0,
+    value=float(data["Cena PL"].max()) if "Cena PL" in data.columns else 0.0,
 )
 
 # Seria procesora
@@ -101,6 +125,15 @@ selected_resolution = st.sidebar.multiselect("Wybierz rozdzielczość (px)", res
 
 # Filtrowanie danych
 filtered_data = data.copy()
+
+# Filtrowanie po tytule oferty
+if search_title:
+    filtered_data = filtered_data[filtered_data["Tytuł oferty"].str.contains(search_title, case=False, na=False)]
+
+# Filtrowanie pozostałych kolumn
+if "Marka" in data.columns:
+    filtered_data = filtered_data[filtered_data["Marka"].isin(selected_brand)]
+
 if "Status oferty" in data.columns:
     filtered_data = filtered_data[filtered_data["Status oferty"].isin(selected_status)]
 
@@ -110,6 +143,14 @@ if "Kategoria główna" in data.columns:
 if "Liczba sztuk" in data.columns:
     filtered_data = filtered_data[
         (filtered_data["Liczba sztuk"] >= min_sztuk) & (filtered_data["Liczba sztuk"] <= max_sztuk)
+    ]
+
+if "Ekran dotykowy" in data.columns:
+    filtered_data = filtered_data[filtered_data["Ekran dotykowy"].isin(selected_touchscreen)]
+
+if "Cena PL" in data.columns:
+    filtered_data = filtered_data[
+        (filtered_data["Cena PL"] >= min_price) & (filtered_data["Cena PL"] <= max_price)
     ]
 
 if "Seria procesora" in data.columns:
