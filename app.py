@@ -182,21 +182,22 @@ st.download_button(
 )
 
 
-# Własna stopka
+# Dodanie własnej stopki
 custom_footer = """
     <style>
     footer {
         visibility: hidden;
     }
-    .reportview-container .main footer {
+    .css-1outpf7 {
         visibility: visible;
         text-align: center;
         color: black;
         font-size: 12px;
+        padding: 10px;
     }
     </style>
-    <footer>
+    <div class="css-1outpf7">
         Aplikacja © 2025 | Wszelkie prawa zastrzeżone
-    </footer>
+    </div>
 """
 st.markdown(custom_footer, unsafe_allow_html=True)
