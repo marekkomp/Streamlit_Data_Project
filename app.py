@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import pandas as pd
 import json
+import io
 
 # Funkcja do przetwarzania opisów
 def przetworz_opis(json_opis):
@@ -67,10 +68,26 @@ filtered_data = data[
 # Wyświetlanie przefiltrowanych danych
 st.dataframe(filtered_data)
 
-# Opcja pobrania przetworzonej tabeli
+# Opcja pobrania przetworzonej tabeli w formacie CSV
 st.download_button(
-    label="Pobierz przetworzoną tabelę",
+    label="Pobierz przetworzoną tabelę w CSV",
     data=filtered_data.to_csv(index=False).encode("utf-8"),
     file_name="przetworzona_tabela.csv",
     mime="text/csv"
 )
+
+# Opcja pobrania przetworzonej tabeli w formacie Excel
+output = io.BytesIO()
+filtered_data.to_excel(output, index=False, engine='openpyxl')
+output.seek(0)
+st.download_button(
+    label="Pobierz przetworzoną tabelę w Excelu",
+    data=output,
+    file_name="przetworzona_tabela.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+
+# Wyświetlenie przykładowego opisu (pierwszy wiersz przefiltrowanej tabeli)
+if not filtered_data.empty:
+    st.subheader("Przykładowy opis (z zachowaniem nowych linii):")
+    st.text(filtered_data.iloc[0]["Opis oferty (czysty tekst)"])
