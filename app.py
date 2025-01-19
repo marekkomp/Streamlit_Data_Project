@@ -3,8 +3,8 @@ import streamlit as st
 import pandas as pd
 import json
 
-# Funkcja do przetwarzania opisów
-def przetworz_opis(json_opis):
+# Funkcja do przetwarzania opisów z debugowaniem
+def przetworz_opis_debug(json_opis):
     try:
         # Załaduj JSON
         data = json.loads(json_opis)
@@ -17,6 +17,9 @@ def przetworz_opis(json_opis):
                     # Przetwórz zawartość HTML
                     soup = BeautifulSoup(item["content"], "html.parser")
                     
+                    # Debug: pokaż oryginalny HTML
+                    st.text("\n[DEBUG] Oryginalny HTML:\n" + soup.prettify())
+                    
                     # Zamień znaczniki <ul> i <li> na czytelne formatowanie
                     for ul in soup.find_all("ul"):
                         ul.insert_before("\n")  # Dodaj przerwę przed listą
@@ -25,7 +28,10 @@ def przetworz_opis(json_opis):
                             li.insert_after("\n")  # Dodaj nową linię po każdej pozycji
                         ul.unwrap()  # Usuń znacznik <ul>
                     
-                    # Zamień znaczniki <h1>, <h2>, itp., na nowe wiersze
+                    # Debug: pokaż HTML po przetworzeniu list
+                    st.text("\n[DEBUG] HTML po przetworzeniu list:\n" + soup.prettify())
+                    
+                    # Zamień znaczniki <h2>, <h3>, itp., na nowe wiersze
                     for header in soup.find_all(["h1", "h2", "h3", "h4"]):
                         header.insert_before("\n")  # Przerwa przed nagłówkiem
                         header.insert_after("\n")  # Przerwa po nagłówku
@@ -35,14 +41,21 @@ def przetworz_opis(json_opis):
                         p.insert_before("\n")  # Przerwa przed akapitem
                         p.insert_after("\n")  # Przerwa po akapicie
                     
+                    # Debug: pokaż HTML po przetworzeniu nagłówków i akapitów
+                    st.text("\n[DEBUG] HTML po przetworzeniu nagłówków i akapitów:\n" + soup.prettify())
+                    
                     # Usuń wszystkie znaczniki HTML, zachowując formatowanie
                     czysty_tekst = soup.get_text(separator="\n")
                     teksty.append(czysty_tekst)
 
+                    # Debug: pokaż przetworzony tekst
+                    st.text("\n[DEBUG] Przetworzony tekst:\n" + czysty_tekst)
+
         # Połącz wyczyszczony tekst w jedną całość, dodając przerwy między sekcjami
         return "\n\n".join(tekstów)
     except Exception as e:
-        return f"Błąd podczas przetwarzania: {e}"
+        st.error(f"Błąd podczas przetwarzania opisu: {e}")
+        return ""
 
 # Wczytywanie danych i przetwarzanie opisów (tylko raz)
 @st.cache_data
@@ -52,7 +65,7 @@ def wczytaj_i_przetworz_dane():
     
     # Przetwórz opisy
     if "Opis oferty" in data.columns:
-        data["Opis oferty (czysty tekst)"] = data["Opis oferty"].apply(przetworz_opis)
+        data["Opis oferty (czysty tekst)"] = data["Opis oferty"].apply(przetworz_opis_debug)
     else:
         st.warning("Kolumna 'Opis oferty' nie została znaleziona w danych.")
 
@@ -62,7 +75,7 @@ def wczytaj_i_przetworz_dane():
 data = wczytaj_i_przetworz_dane()
 
 # Wyświetlanie interfejsu
-st.title("Aplikacja do filtrowania danych z czyszczeniem opisów")
+st.title("Aplikacja do filtrowania danych z czyszczeniem opisów i debugowaniem")
 st.write("Tabela zawiera wszystkie dane wraz z przetworzonymi opisami.")
 
 # Filtr dla kolumny "Status oferty"
