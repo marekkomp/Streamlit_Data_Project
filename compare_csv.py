@@ -25,7 +25,8 @@ def compare_csv_files(df1, df2):
         diff_row = {}
         for col in df1.columns:
             if df1_row[col] != df2_row[col]:
-                diff_row[col] = f"<span style='background-color: yellow'>{df2_row[col]} (zmienione z {df1_row[col]})</span>"
+                # Dodajemy pogrubienie i opis różnicy
+                diff_row[col] = f"**{df2_row[col]}** (zmienione z {df1_row[col]})"
             else:
                 diff_row[col] = df2_row[col]
 
@@ -64,8 +65,8 @@ if uploaded_file1 and uploaded_file2:
     # Wyświetlanie wyników
     st.subheader("Różnice między plikami")
     if not differences.empty:
-        # Wyświetlanie tabeli w formacie HTML
-        st.write(differences.to_html(escape=False), unsafe_allow_html=True)
+        # Wyświetlamy z obsługą Markdown dla pogrubienia
+        st.write(differences.to_markdown(), unsafe_allow_html=False)
     else:
         st.write("Brak różnic między plikami.")
 
