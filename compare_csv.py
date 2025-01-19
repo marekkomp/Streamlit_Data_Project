@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Funkcja do porównywania danych
+
 def compare_csv_files(df1, df2):
     id_column = 'ID oferty'
 
@@ -22,16 +23,8 @@ def compare_csv_files(df1, df2):
         df2_row = df2[df2[id_column] == id_value].iloc[0]
 
         # Porównujemy wartości w kolumnach
-        diff_row = {}
-        for col in df1.columns:
-            if df1_row[col] != df2_row[col]:
-                # Dodajemy oznaczenie różnic
-                diff_row[col] = f"<b style='color: red;'>{df2_row[col]}</b> (zmienione z {df1_row[col]})"
-            else:
-                diff_row[col] = df2_row[col]
-
-        if diff_row:
-            differences.append(diff_row)
+        if not df1_row.equals(df2_row):
+            differences.append(df2_row)
 
     # Tworzymy DataFrame z różnicami
     changed_rows = pd.DataFrame(differences, columns=df2.columns)
@@ -65,8 +58,7 @@ if uploaded_file1 and uploaded_file2:
     # Wyświetlanie wyników
     st.subheader("Różnice między plikami")
     if not differences.empty:
-        # Wyświetlanie tabeli w HTML
-        st.write(differences.to_html(escape=False), unsafe_allow_html=True)
+        st.dataframe(differences)
     else:
         st.write("Brak różnic między plikami.")
 
