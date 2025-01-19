@@ -14,12 +14,12 @@ def przetworz_opis(json_opis):
         for section in data.get("sections", []):
             for item in section.get("items", []):
                 if item.get("type") == "TEXT":
-                    # Usuń znaczniki HTML, zachowując nowe wiersze
+                    # Usuń znaczniki HTML, zachowując nowe wiersze dla list i paragrafów
                     czysty_tekst = BeautifulSoup(item["content"], "html.parser").get_text(separator="\n")
                     teksty.append(czysty_tekst)
 
         # Połącz wyczyszczony tekst w jedną całość, zachowując odstępy między sekcjami
-        return "\n\n".join(teksty)
+        return "\n\n".join(tekst.replace("\n", "\n") for tekst in teksty)
     except Exception as e:
         return f"Błąd podczas przetwarzania: {e}"
 
@@ -27,7 +27,7 @@ def przetworz_opis(json_opis):
 @st.cache_data
 def wczytaj_i_przetworz_dane():
     # Wczytaj plik CSV
-    data = pd.read_csv("1.csv")
+    data = pd.read_csv("test.csv")
     
     # Przetwórz opisy
     if "Opis oferty" in data.columns:
