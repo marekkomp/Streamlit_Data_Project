@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import pandas as pd
 import json
+from io import BytesIO
 
 # Funkcja do przetwarzania opisów
 def przetworz_opis(json_opis):
@@ -66,3 +67,29 @@ filtered_data = data[
 
 # Wyświetlanie przefiltrowanych danych
 st.dataframe(filtered_data)
+
+# Funkcje do zapisywania plików
+def download_csv(df):
+    return df.to_csv(index=False).encode("utf-8")
+
+def download_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Sheet1")
+    return output.getvalue()
+
+# Dodanie przycisku do pobierania CSV
+st.download_button(
+    label="Pobierz dane jako CSV",
+    data=download_csv(filtered_data),
+    file_name="przefiltrowane_dane.csv",
+    mime="text/csv"
+)
+
+# Dodanie przycisku do pobierania Excel
+st.download_button(
+    label="Pobierz dane jako Excel",
+    data=download_excel(filtered_data),
+    file_name="przefiltrowane_dane.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
