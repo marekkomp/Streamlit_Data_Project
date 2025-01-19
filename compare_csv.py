@@ -2,22 +2,34 @@ import streamlit as st
 import pandas as pd
 
 # Funkcja do porównywania danych
+
 def compare_csv_files(df1, df2):
     id_column = 'ID oferty'
+
+    # Usuwamy nadmiarowe białe znaki w danych
+    df1 = df1.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df2 = df2.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
     # Wiersze, które są tylko w drugim pliku (nowe ID)
     new_rows = df2[~df2[id_column].isin(df1[id_column])]
 
-    # Łączenie danych na podstawie ID oferty, aby znaleźć różnice w istniejących ID
-    merged = pd.merge(df1, df2, on=id_column, how='inner', suffixes=('_file1', '_file2'))
+    # Wiersze, które są w obu plikach, ale mają różne dane
+    common_ids = df1[df1[id_column].isin(df2[id_column])]
+    differences = []
 
-    # Znalezienie różnic w kolumnach oprócz ID
-    different_rows = merged[merged.filter(like='_file1').ne(merged.filter(like='_file2')).any(axis=1)]
+    for _, row in common_ids.iterrows():
+        id_value = row[id_column]
+        df1_row = row
+        df2_row = df2[df2[id_column] == id_value].iloc[0]
 
-    # Pobranie tylko zmienionych wierszy z drugiego pliku
-    changed_rows = df2[df2[id_column].isin(different_rows[id_column])]
+        # Porównujemy wartości w kolumnach
+        if not df1_row.equals(df2_row):
+            differences.append(df2_row)
 
-    # Łączenie nowych wierszy i różnic w istniejących ID
+    # Tworzymy DataFrame z różnicami
+    changed_rows = pd.DataFrame(differences, columns=df2.columns)
+
+    # Łączenie nowych wierszy i zmienionych wierszy
     result = pd.concat([new_rows, changed_rows], ignore_index=True)
 
     return result
