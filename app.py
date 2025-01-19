@@ -126,6 +126,20 @@ max_price = st.sidebar.number_input(
     value=float(data["Cena PL"].max()) if "Cena PL" in data.columns else 0.0,
 )
 
+# Minimalna i maksymalna liczba sztuk
+min_sztuk = st.sidebar.number_input(
+    "Minimalna liczba sztuk",
+    min_value=0,
+    value=int(data["Liczba sztuk"].min()) if "Liczba sztuk" in data.columns else 0,
+)
+
+max_sztuk = st.sidebar.number_input(
+    "Maksymalna liczba sztuk",
+    min_value=0,
+    value=int(data["Liczba sztuk"].max()) if "Liczba sztuk" in data.columns else 0,
+)
+
+
 # Filtrowanie danych
 filtered_data = data.copy()
 
@@ -188,6 +202,12 @@ if "Cena PL" in data.columns:
     filtered_data = filtered_data[
         (filtered_data["Cena PL"] >= min_price) & (filtered_data["Cena PL"] <= max_price)
     ]
+
+if "Liczba sztuk" in data.columns:
+    filtered_data = filtered_data[
+        (filtered_data["Liczba sztuk"] >= min_sztuk) & (filtered_data["Liczba sztuk"] <= max_sztuk)
+    ]
+
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
