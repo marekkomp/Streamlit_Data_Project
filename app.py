@@ -57,54 +57,32 @@ def przetworz_opis_debug(json_opis):
         st.error(f"Błąd podczas przetwarzania opisu: {e}")
         return ""
 
-# Wczytywanie danych i przetwarzanie opisów (tylko raz)
-@st.cache_data
-def wczytaj_i_przetworz_dane():
+# Wczytywanie danych tylko dla jednej pozycji
+def wczytaj_dane_dla_id(id_pozycji):
     # Wczytaj plik CSV
     data = pd.read_csv("1.csv")
     
-    # Przetwórz opisy
-    if "Opis oferty" in data.columns:
-        data["Opis oferty (czysty tekst)"] = data["Opis oferty"].apply(przetworz_opis_debug)
+    # Znajdź wiersz z wybranym ID
+    if "ID" in data.columns:
+        wybrana_pozycja = data[data["ID"] == id_pozycji]
+        if wybrana_pozycja.empty:
+            st.error(f"Nie znaleziono pozycji o ID {id_pozycji}")
+            return None
+        return wybrana_pozycja
     else:
-        st.warning("Kolumna 'Opis oferty' nie została znaleziona w danych.")
+        st.error("Kolumna 'ID' nie została znaleziona w danych.")
+        return None
 
-    return data
+# Wczytaj dane dla konkretnego ID
+wybrany_id = 11132647668
+data = wczytaj_dane_dla_id(wybrany_id)
 
-# Wczytaj dane (z pamięcią cache)
-data = wczytaj_i_przetworz_dane()
-
-# Wyświetlanie interfejsu
-st.title("Aplikacja do filtrowania danych z czyszczeniem opisów i debugowaniem")
-st.write("Tabela zawiera wszystkie dane wraz z przetworzonymi opisami.")
-
-# Filtr dla kolumny "Status oferty"
-status_options = data["Status oferty"].dropna().unique()  # Unikalne wartości w kolumnie
-selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
-
-# Filtr dla kolumny "Kategoria główna"
-category_options = data["Kategoria główna"].dropna().unique()
-selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
-
-# Filtr dla kolumny "Liczba sztuk"
-min_sztuk = st.sidebar.number_input("Minimalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].min()))
-max_sztuk = st.sidebar.number_input("Maksymalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].max()))
-
-# Filtrowanie danych
-filtered_data = data[
-    (data["Status oferty"].isin(selected_status)) &
-    (data["Kategoria główna"].isin(selected_category)) &
-    (data["Liczba sztuk"] >= min_sztuk) &
-    (data["Liczba sztuk"] <= max_sztuk)
-]
-
-# Wyświetlanie przefiltrowanych danych
-st.dataframe(filtered_data)
-
-# Opcja pobrania przetworzonej tabeli
-st.download_button(
-    label="Pobierz przetworzoną tabelę",
-    data=filtered_data.to_csv(index=False).encode("utf-8"),
-    file_name="przetworzona_tabela.csv",
-    mime="text/csv"
-)
+if data is not None:
+    # Przetwórz opis tylko dla tej pozycji
+    if "Opis oferty" in data.columns:
+        opis = data["Opis oferty"].iloc[0]
+        przetworzony_opis = przetworz_opis_debug(opis)
+        st.write(f"Przetworzony opis dla ID {wybrany_id}:")
+        st.text(przetworzony_opis)
+    else:
+        st.error("Kolumna 'Opis oferty' nie została znaleziona w danych.")
