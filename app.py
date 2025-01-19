@@ -58,53 +58,50 @@ if "Opis oferty" in data.columns:
 
 # Filtry
 st.sidebar.header("Filtry")
+
 # Tytuł oferty
 search_title = st.sidebar.text_input("Szukaj po tytule oferty", value="")
 
 # Marka
 brand_options = data["Marka"].dropna().unique() if "Marka" in data.columns else []
-selected_brand = st.sidebar.multiselect("Wybierz markę", brand_options, default=brand_options)
-
-# Status oferty
-status_options = data["Status oferty"].dropna().unique() if "Status oferty" in data.columns else []
-selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
-
-# Kategoria główna
-category_options = data["Kategoria główna"].dropna().unique() if "Kategoria główna" in data.columns else []
-selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
+selected_brand = st.sidebar.multiselect(
+    "Wybierz markę", 
+    options=brand_options, 
+    default=brand_options if len(brand_options) > 0 else [],
+    help="Odznacz wszystkie, aby wybrać wszystkie dostępne opcje"
+)
+if not selected_brand and brand_options:
+    selected_brand = brand_options
 
 # Typ pamięci RAM
 ram_type_options = data["Typ pamięci RAM"].dropna().unique() if "Typ pamięci RAM" in data.columns else []
-selected_ram_type = st.sidebar.multiselect("Wybierz typ pamięci RAM", ram_type_options, default=ram_type_options)
+selected_ram_type = st.sidebar.multiselect(
+    "Wybierz typ pamięci RAM", 
+    options=ram_type_options, 
+    default=ram_type_options if len(ram_type_options) > 0 else []
+)
+if not selected_ram_type and ram_type_options:
+    selected_ram_type = ram_type_options
 
 # Wielkość pamięci RAM
 ram_size_options = data["Wielkość pamięci RAM"].dropna().unique() if "Wielkość pamięci RAM" in data.columns else []
-selected_ram_size = st.sidebar.multiselect("Wybierz wielkość pamięci RAM", ram_size_options, default=ram_size_options)
+selected_ram_size = st.sidebar.multiselect(
+    "Wybierz wielkość pamięci RAM", 
+    options=ram_size_options, 
+    default=ram_size_options if len(ram_size_options) > 0 else []
+)
+if not selected_ram_size and ram_size_options:
+    selected_ram_size = ram_size_options
 
 # Typ dysku twardego
 hdd_type_options = data["Typ dysku twardego"].dropna().unique() if "Typ dysku twardego" in data.columns else []
-selected_hdd_type = st.sidebar.multiselect("Wybierz typ dysku twardego", hdd_type_options, default=hdd_type_options)
-
-# Pojemność dysku [GB]
-hdd_capacity_options = data["Pojemność dysku [GB]"].dropna().unique() if "Pojemność dysku [GB]" in data.columns else []
-selected_hdd_capacity = st.sidebar.multiselect("Wybierz pojemność dysku [GB]", hdd_capacity_options, default=hdd_capacity_options)
-
-# Model procesora.1
-cpu_model_options = data["Model procesora.1"].dropna().unique() if "Model procesora.1" in data.columns else []
-selected_cpu_model = st.sidebar.multiselect("Wybierz model procesora", cpu_model_options, default=cpu_model_options)
-
-# Cena PL
-min_price = st.sidebar.number_input(
-    "Minimalna cena (PLN)",
-    min_value=0.0,
-    value=float(data["Cena PL"].min()) if "Cena PL" in data.columns else 0.0,
+selected_hdd_type = st.sidebar.multiselect(
+    "Wybierz typ dysku twardego", 
+    options=hdd_type_options, 
+    default=hdd_type_options if len(hdd_type_options) > 0 else []
 )
-
-max_price = st.sidebar.number_input(
-    "Maksymalna cena (PLN)",
-    min_value=0.0,
-    value=float(data["Cena PL"].max()) if "Cena PL" in data.columns else 0.0,
-)
+if not selected_hdd_type and hdd_type_options:
+    selected_hdd_type = hdd_type_options
 
 # Filtrowanie danych
 filtered_data = data.copy()
@@ -113,35 +110,21 @@ filtered_data = data.copy()
 if search_title:
     filtered_data = filtered_data[filtered_data["Tytuł oferty"].str.contains(search_title, case=False, na=False)]
 
-# Filtrowanie pozostałych kolumn
+# Filtrowanie po marce
 if "Marka" in data.columns:
     filtered_data = filtered_data[filtered_data["Marka"].isin(selected_brand)]
 
-if "Status oferty" in data.columns:
-    filtered_data = filtered_data[filtered_data["Status oferty"].isin(selected_status)]
-
-if "Kategoria główna" in data.columns:
-    filtered_data = filtered_data[filtered_data["Kategoria główna"].isin(selected_category)]
-
+# Filtrowanie po typie pamięci RAM
 if "Typ pamięci RAM" in data.columns:
     filtered_data = filtered_data[filtered_data["Typ pamięci RAM"].isin(selected_ram_type)]
 
+# Filtrowanie po wielkości pamięci RAM
 if "Wielkość pamięci RAM" in data.columns:
     filtered_data = filtered_data[filtered_data["Wielkość pamięci RAM"].isin(selected_ram_size)]
 
+# Filtrowanie po typie dysku twardego
 if "Typ dysku twardego" in data.columns:
     filtered_data = filtered_data[filtered_data["Typ dysku twardego"].isin(selected_hdd_type)]
-
-if "Pojemność dysku [GB]" in data.columns:
-    filtered_data = filtered_data[filtered_data["Pojemność dysku [GB]"].isin(selected_hdd_capacity)]
-
-if "Model procesora.1" in data.columns:
-    filtered_data = filtered_data[filtered_data["Model procesora.1"].isin(selected_cpu_model)]
-
-if "Cena PL" in data.columns:
-    filtered_data = filtered_data[
-        (filtered_data["Cena PL"] >= min_price) & (filtered_data["Cena PL"] <= max_price)
-    ]
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
