@@ -58,12 +58,15 @@ if "Opis oferty" in data.columns:
 
 # Filtry
 st.sidebar.header("Filtry")
+# Status oferty
 status_options = data["Status oferty"].dropna().unique() if "Status oferty" in data.columns else []
 selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options, default=status_options)
 
+# Kategoria główna
 category_options = data["Kategoria główna"].dropna().unique() if "Kategoria główna" in data.columns else []
 selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
 
+# Minimalna i maksymalna liczba sztuk
 min_sztuk = st.sidebar.number_input(
     "Minimalna liczba sztuk",
     min_value=0,
@@ -75,6 +78,26 @@ max_sztuk = st.sidebar.number_input(
     min_value=0,
     value=int(data["Liczba sztuk"].max()) if "Liczba sztuk" in data.columns else 0,
 )
+
+# Seria procesora
+cpu_series_options = data["Seria procesora"].dropna().unique() if "Seria procesora" in data.columns else []
+selected_cpu_series = st.sidebar.multiselect("Wybierz serię procesora", cpu_series_options, default=cpu_series_options)
+
+# Przekątna ekranu
+screen_size_options = data["Przekątna ekranu [\"]"].dropna().unique() if "Przekątna ekranu [\"]" in data.columns else []
+selected_screen_size = st.sidebar.multiselect("Wybierz przekątną ekranu [\"]", screen_size_options, default=screen_size_options)
+
+# Liczba rdzeni procesora
+core_count_options = data["Liczba rdzeni procesora"].dropna().unique() if "Liczba rdzeni procesora" in data.columns else []
+selected_core_count = st.sidebar.multiselect("Wybierz liczbę rdzeni procesora", core_count_options, default=core_count_options)
+
+# Rodzaj karty graficznej
+gpu_type_options = data["Rodzaj karty graficznej"].dropna().unique() if "Rodzaj karty graficznej" in data.columns else []
+selected_gpu_type = st.sidebar.multiselect("Wybierz rodzaj karty graficznej", gpu_type_options, default=gpu_type_options)
+
+# Złącza
+connectors_options = data["Złącza"].dropna().unique() if "Złącza" in data.columns else []
+selected_connectors = st.sidebar.multiselect("Wybierz złącza", connectors_options, default=connectors_options)
 
 # Filtrowanie danych
 filtered_data = data.copy()
@@ -88,6 +111,21 @@ if "Liczba sztuk" in data.columns:
     filtered_data = filtered_data[
         (filtered_data["Liczba sztuk"] >= min_sztuk) & (filtered_data["Liczba sztuk"] <= max_sztuk)
     ]
+
+if "Seria procesora" in data.columns:
+    filtered_data = filtered_data[filtered_data["Seria procesora"].isin(selected_cpu_series)]
+
+if "Przekątna ekranu [\"]" in data.columns:
+    filtered_data = filtered_data[filtered_data["Przekątna ekranu [\"]"].isin(selected_screen_size)]
+
+if "Liczba rdzeni procesora" in data.columns:
+    filtered_data = filtered_data[filtered_data["Liczba rdzeni procesora"].isin(selected_core_count)]
+
+if "Rodzaj karty graficznej" in data.columns:
+    filtered_data = filtered_data[filtered_data["Rodzaj karty graficznej"].isin(selected_gpu_type)]
+
+if "Złącza" in data.columns:
+    filtered_data = filtered_data[filtered_data["Złącza"].isin(selected_connectors)]
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
