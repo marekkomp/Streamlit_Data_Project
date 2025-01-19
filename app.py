@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import pandas as pd
 import json
-import io
 
 # Funkcja do przetwarzania opisów
 def przetworz_opis(json_opis):
@@ -15,12 +14,32 @@ def przetworz_opis(json_opis):
         for section in data.get("sections", []):
             for item in section.get("items", []):
                 if item.get("type") == "TEXT":
-                    # Usuń znaczniki HTML, zachowując nowe wiersze dla list i paragrafów
-                    czysty_tekst = BeautifulSoup(item["content"], "html.parser").get_text(separator="\n")
+                    # Przetwórz zawartość HTML
+                    soup = BeautifulSoup(item["content"], "html.parser")
+                    
+                    # Zamień znaczniki <ul> i <li> na czytelne formatowanie
+                    for ul in soup.find_all("ul"):
+                        ul.insert_before("\n")  # Dodaj przerwę przed listą
+                        for li in ul.find_all("li"):
+                            li.insert_before("- ")  # Dodaj myślnik przed każdą pozycją listy
+                            li.insert_after("\n")  # Dodaj nową linię po każdej pozycji
+                        ul.unwrap()  # Usuń znacznik <ul>
+                    
+                    # Zamień znaczniki <h2>, <h3>, itp., na nowe wiersze
+                    for header in soup.find_all(["h1", "h2", "h3", "h4"]):
+                        header.insert_before("\n")  # Przerwa przed nagłówkiem
+                        header.insert_after("\n")  # Przerwa po nagłówku
+                    
+                    # Zamień znaczniki <p> na nowe wiersze
+                    for p in soup.find_all("p"):
+                        p.insert_after("\n")  # Przerwa po każdym akapicie
+                    
+                    # Usuń wszystkie znaczniki HTML, zachowując formatowanie
+                    czysty_tekst = soup.get_text()
                     teksty.append(czysty_tekst)
 
-        # Połącz wyczyszczony tekst w jedną całość, zachowując odstępy między sekcjami
-        return "\n\n".join(tekst.replace("\n", "\n") for tekst in teksty)
+        # Połącz wyczyszczony tekst w jedną całość
+        return "\n\n".join(teksty)
     except Exception as e:
         return f"Błąd podczas przetwarzania: {e}"
 
@@ -68,26 +87,10 @@ filtered_data = data[
 # Wyświetlanie przefiltrowanych danych
 st.dataframe(filtered_data)
 
-# Opcja pobrania przetworzonej tabeli w formacie CSV
+# Opcja pobrania przetworzonej tabeli
 st.download_button(
-    label="Pobierz przetworzoną tabelę w CSV",
+    label="Pobierz przetworzoną tabelę",
     data=filtered_data.to_csv(index=False).encode("utf-8"),
     file_name="przetworzona_tabela.csv",
     mime="text/csv"
 )
-
-# Opcja pobrania przetworzonej tabeli w formacie Excel
-output = io.BytesIO()
-filtered_data.to_excel(output, index=False, engine='openpyxl')
-output.seek(0)
-st.download_button(
-    label="Pobierz przetworzoną tabelę w Excelu",
-    data=output,
-    file_name="przetworzona_tabela.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
-
-# Wyświetlenie przykładowego opisu (pierwszy wiersz przefiltrowanej tabeli)
-if not filtered_data.empty:
-    st.subheader("Przykładowy opis (z zachowaniem nowych linii):")
-    st.text(filtered_data.iloc[0]["Opis oferty (czysty tekst)"])
