@@ -7,7 +7,7 @@ import json
 def przetworz_opis(json_opis):
     try:
         data = json.loads(json_opis)
-        teksty = []
+        teksty = []  # Poprawiona nazwa zmiennej
 
         for section in data.get("sections", []):
             for item in section.get("items", []):
@@ -33,7 +33,7 @@ def przetworz_opis(json_opis):
                     czysty_tekst = "\n".join(line.strip() for line in czysty_tekst.splitlines() if line.strip())
                     teksty.append(czysty_tekst)
 
-        return "\n\n".join(tekstów)
+        return "\n\n".join(teksty)
     except Exception as e:
         st.error(f"Błąd podczas przetwarzania opisu: {e}")
         return ""
