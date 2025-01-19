@@ -65,7 +65,7 @@ if uploaded_file1 and uploaded_file2:
     # Wyświetlanie wyników
     st.subheader("Różnice między plikami")
     if not differences.empty:
-        # Wyświetlamy z obsługą Markdown dla pogrubienia
+        # Wyświetlamy różnice jako tabelę w Markdown
         st.write(differences.to_markdown(), unsafe_allow_html=False)
     else:
         st.write("Brak różnic między plikami.")
