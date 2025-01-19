@@ -7,14 +7,14 @@ import json
 def przetworz_opis_debug(json_opis):
     try:
         data = json.loads(json_opis)
-        teksty = []
+        teksty = []  # Poprawna zmienna
         for section in data.get("sections", []):
             for item in section.get("items", []):
                 if item.get("type") == "TEXT":
                     soup = BeautifulSoup(item["content"], "html.parser")
                     czysty_tekst = soup.get_text(separator="\n")
                     teksty.append(czysty_tekst)
-        return "\n\n".join(tekstów)
+        return "\n\n".join(teksty)
     except Exception as e:
         st.error(f"Błąd podczas przetwarzania opisu: {e}")
         return ""
