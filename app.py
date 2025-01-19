@@ -1,13 +1,19 @@
 import streamlit as st
 import pandas as pd
 
-# Wczytywanie danych z CSV
+# Wczytywanie danych
 try:
-    data = pd.read_csv("1.csv")  # Upewnij się, że nazwa pliku się zgadza
+    # Wczytaj dane z CSV
+    data = pd.read_csv("1.csv")
 
-    st.title("Podgląd danych")
-    st.write("Poniżej znajdują się dane z pliku CSV:")
-    st.write(data)
+    # Wyciągnięcie kluczowych kolumn
+    kluczowe_kolumny = ["Status oferty", "Liczba sztuk", "Cena PL", "Tytuł oferty"]
+    dane_filtr = data[kluczowe_kolumny]
+
+    # Wyświetlanie danych
+    st.title("Podgląd danych ofert")
+    st.write("Poniżej znajdują się dane z wybranych kolumn:")
+    st.write(dane_filtr.head(50))  # Wyświetl tylko 50 pierwszych wierszy
 
 except FileNotFoundError:
     st.error("Nie znaleziono pliku CSV. Upewnij się, że plik jest w repozytorium i nazwa jest poprawna.")
