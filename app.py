@@ -180,3 +180,23 @@ st.download_button(
     file_name="przetworzona_tabela.csv",
     mime="text/csv",
 )
+
+
+# Własna stopka
+custom_footer = """
+    <style>
+    footer {
+        visibility: hidden;
+    }
+    .reportview-container .main footer {
+        visibility: visible;
+        text-align: center;
+        color: black;
+        font-size: 12px;
+    }
+    </style>
+    <footer>
+        Aplikacja © 2025 | Wszelkie prawa zastrzeżone
+    </footer>
+"""
+st.markdown(custom_footer, unsafe_allow_html=True)
