@@ -2,16 +2,15 @@ import streamlit as st
 import pandas as pd
 
 # Funkcja do porównywania danych
-def compare_csv_files(df1, df2, id_column):
-    # Łączenie danych na podstawie ID oferty
-    merged = pd.merge(df1, df2, on=id_column, how='outer', suffixes=('_original', '_new'), indicator=True)
-    
-    # Znalezienie różnic
-    added = merged[merged['_merge'] == 'right_only']
-    removed = merged[merged['_merge'] == 'left_only']
-    updated = merged[(merged['_merge'] == 'both') & (merged.filter(like='_original').ne(merged.filter(like='_new')).any(axis=1))]
+def compare_csv_files(df1, df2):
+    # Znajdowanie różnic
+    df1_set = set([tuple(row) for row in df1.values])
+    df2_set = set([tuple(row) for row in df2.values])
 
-    return added, removed, updated
+    differences = df2_set - df1_set
+    differences_df = pd.DataFrame(list(differences), columns=df2.columns)
+
+    return differences_df
 
 # Aplikacja Streamlit
 st.title("Porównanie dwóch plików CSV")
@@ -31,22 +30,15 @@ if uploaded_file1 and uploaded_file2:
     st.subheader("Podgląd drugiego pliku")
     st.dataframe(df2)
 
-    # Wybór kolumny do porównania
-    id_column = st.selectbox("Wybierz kolumnę ID do porównania", options=df1.columns.intersection(df2.columns))
+    # Porównanie plików
+    differences = compare_csv_files(df1, df2)
 
-    if id_column:
-        # Porównanie plików
-        added, removed, updated = compare_csv_files(df1, df2, id_column)
-
-        # Wyświetlanie wyników
-        st.subheader("Dodane rekordy")
-        st.dataframe(added)
-
-        st.subheader("Usunięte rekordy")
-        st.dataframe(removed)
-
-        st.subheader("Zmienione rekordy")
-        st.dataframe(updated)
+    # Wyświetlanie wyników
+    st.subheader("Różnice między plikami")
+    if not differences.empty:
+        st.dataframe(differences)
+    else:
+        st.write("Brak różnic między plikami.")
 
 else:
     st.info("Wgraj oba pliki CSV, aby rozpocząć porównanie.")
