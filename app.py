@@ -17,13 +17,9 @@ try:
     category_options = data["Kategoria główna"].dropna().unique()
     selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
 
-    # Filtr dla kolumny "Liczba sztuk"
-    min_sztuk, max_sztuk = st.sidebar.slider(
-        "Wybierz zakres liczby sztuk",
-        int(data["Liczba sztuk"].min()),
-        int(data["Liczba sztuk"].max()),
-        (int(data["Liczba sztuk"].min()), int(data["Liczba sztuk"].max()))
-    )
+    # Filtr dla kolumny "Liczba sztuk" (ręczne wpisanie zakresu)
+    min_sztuk = st.sidebar.number_input("Minimalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].min()))
+    max_sztuk = st.sidebar.number_input("Maksymalna liczba sztuk", min_value=0, value=int(data["Liczba sztuk"].max()))
 
     # Filtrowanie danych
     filtered_data = data[
