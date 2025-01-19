@@ -4,16 +4,22 @@ import pandas as pd
 # Funkcja do porównywania danych
 
 def compare_csv_files(df1, df2, id_column):
-    # Łączenie danych na podstawie ID oferty
+    # Wiersze, które są tylko w drugim pliku (nowe ID)
+    new_rows = df2[~df2[id_column].isin(df1[id_column])]
+
+    # Łączenie danych na podstawie ID oferty, aby znaleźć różnice w istniejących ID
     merged = pd.merge(df1, df2, on=id_column, how='inner', suffixes=('_file1', '_file2'))
 
     # Znalezienie różnic w kolumnach oprócz ID
     different_rows = merged[merged.filter(like='_file1').ne(merged.filter(like='_file2')).any(axis=1)]
 
-    # Zwrócenie wierszy z drugiego pliku dla różnic
+    # Zwrócenie wierszy z drugiego pliku dla różnic w istniejących ID
     differences = df2[df2[id_column].isin(different_rows[id_column])]
 
-    return differences
+    # Łączenie nowych wierszy i różnic w istniejących ID
+    result = pd.concat([new_rows, differences], ignore_index=True)
+
+    return result
 
 # Aplikacja Streamlit
 st.title("Porównanie dwóch plików CSV")
