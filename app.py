@@ -4,7 +4,7 @@ import pandas as pd
 # Wczytywanie danych
 try:
     # Wczytaj cały plik CSV
-    data = pd.read_csv("test.csv")
+    data = pd.read_csv("1.csv")
 
     # Wyświetlanie danych
     st.title("Pełny podgląd danych")
