@@ -25,21 +25,22 @@ def przetworz_opis(json_opis):
                             li.insert_after("\n")  # Dodaj nową linię po każdej pozycji
                         ul.unwrap()  # Usuń znacznik <ul>
                     
-                    # Zamień znaczniki <h2>, <h3>, itp., na nowe wiersze
+                    # Zamień znaczniki <h1>, <h2>, itp., na nowe wiersze
                     for header in soup.find_all(["h1", "h2", "h3", "h4"]):
                         header.insert_before("\n")  # Przerwa przed nagłówkiem
                         header.insert_after("\n")  # Przerwa po nagłówku
                     
                     # Zamień znaczniki <p> na nowe wiersze
                     for p in soup.find_all("p"):
-                        p.insert_after("\n")  # Przerwa po każdym akapicie
+                        p.insert_before("\n")  # Przerwa przed akapitem
+                        p.insert_after("\n")  # Przerwa po akapicie
                     
                     # Usuń wszystkie znaczniki HTML, zachowując formatowanie
-                    czysty_tekst = soup.get_text()
+                    czysty_tekst = soup.get_text(separator="\n")
                     teksty.append(czysty_tekst)
 
-        # Połącz wyczyszczony tekst w jedną całość
-        return "\n\n".join(teksty)
+        # Połącz wyczyszczony tekst w jedną całość, dodając przerwy między sekcjami
+        return "\n\n".join(tekstów)
     except Exception as e:
         return f"Błąd podczas przetwarzania: {e}"
 
