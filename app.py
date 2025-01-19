@@ -7,7 +7,7 @@ import json
 def przetworz_opis(json_opis):
     try:
         data = json.loads(json_opis)
-        teksty = []  # Poprawiona nazwa zmiennej
+        teksty = []
 
         for section in data.get("sections", []):
             for item in section.get("items", []):
@@ -73,22 +73,25 @@ selected_status = st.sidebar.multiselect("Wybierz status oferty", status_options
 category_options = data["Kategoria główna"].dropna().unique() if "Kategoria główna" in data.columns else []
 selected_category = st.sidebar.multiselect("Wybierz kategorię główną", category_options, default=category_options)
 
-# Minimalna i maksymalna liczba sztuk
-min_sztuk = st.sidebar.number_input(
-    "Minimalna liczba sztuk",
-    min_value=0,
-    value=int(data["Liczba sztuk"].min()) if "Liczba sztuk" in data.columns else 0,
-)
+# Typ pamięci RAM
+ram_type_options = data["Typ pamięci RAM"].dropna().unique() if "Typ pamięci RAM" in data.columns else []
+selected_ram_type = st.sidebar.multiselect("Wybierz typ pamięci RAM", ram_type_options, default=ram_type_options)
 
-max_sztuk = st.sidebar.number_input(
-    "Maksymalna liczba sztuk",
-    min_value=0,
-    value=int(data["Liczba sztuk"].max()) if "Liczba sztuk" in data.columns else 0,
-)
+# Wielkość pamięci RAM
+ram_size_options = data["Wielkość pamięci RAM"].dropna().unique() if "Wielkość pamięci RAM" in data.columns else []
+selected_ram_size = st.sidebar.multiselect("Wybierz wielkość pamięci RAM", ram_size_options, default=ram_size_options)
 
-# Ekran dotykowy
-touchscreen_options = data["Ekran dotykowy"].dropna().unique() if "Ekran dotykowy" in data.columns else []
-selected_touchscreen = st.sidebar.multiselect("Wybierz opcję ekranu dotykowego", touchscreen_options, default=touchscreen_options)
+# Typ dysku twardego
+hdd_type_options = data["Typ dysku twardego"].dropna().unique() if "Typ dysku twardego" in data.columns else []
+selected_hdd_type = st.sidebar.multiselect("Wybierz typ dysku twardego", hdd_type_options, default=hdd_type_options)
+
+# Pojemność dysku [GB]
+hdd_capacity_options = data["Pojemność dysku [GB]"].dropna().unique() if "Pojemność dysku [GB]" in data.columns else []
+selected_hdd_capacity = st.sidebar.multiselect("Wybierz pojemność dysku [GB]", hdd_capacity_options, default=hdd_capacity_options)
+
+# Model procesora.1
+cpu_model_options = data["Model procesora.1"].dropna().unique() if "Model procesora.1" in data.columns else []
+selected_cpu_model = st.sidebar.multiselect("Wybierz model procesora", cpu_model_options, default=cpu_model_options)
 
 # Cena PL
 min_price = st.sidebar.number_input(
@@ -102,26 +105,6 @@ max_price = st.sidebar.number_input(
     min_value=0.0,
     value=float(data["Cena PL"].max()) if "Cena PL" in data.columns else 0.0,
 )
-
-# Seria procesora
-cpu_series_options = data["Seria procesora"].dropna().unique() if "Seria procesora" in data.columns else []
-selected_cpu_series = st.sidebar.multiselect("Wybierz serię procesora", cpu_series_options, default=cpu_series_options)
-
-# Przekątna ekranu
-screen_size_options = data["Przekątna ekranu [\"]"].dropna().unique() if "Przekątna ekranu [\"]" in data.columns else []
-selected_screen_size = st.sidebar.multiselect("Wybierz przekątną ekranu [\"]", screen_size_options, default=screen_size_options)
-
-# Liczba rdzeni procesora
-core_count_options = data["Liczba rdzeni procesora"].dropna().unique() if "Liczba rdzeni procesora" in data.columns else []
-selected_core_count = st.sidebar.multiselect("Wybierz liczbę rdzeni procesora", core_count_options, default=core_count_options)
-
-# Rodzaj karty graficznej
-gpu_type_options = data["Rodzaj karty graficznej"].dropna().unique() if "Rodzaj karty graficznej" in data.columns else []
-selected_gpu_type = st.sidebar.multiselect("Wybierz rodzaj karty graficznej", gpu_type_options, default=gpu_type_options)
-
-# Rozdzielczość (px)
-resolution_options = data["Rozdzielczość (px)"].dropna().unique() if "Rozdzielczość (px)" in data.columns else []
-selected_resolution = st.sidebar.multiselect("Wybierz rozdzielczość (px)", resolution_options, default=resolution_options)
 
 # Filtrowanie danych
 filtered_data = data.copy()
@@ -140,33 +123,25 @@ if "Status oferty" in data.columns:
 if "Kategoria główna" in data.columns:
     filtered_data = filtered_data[filtered_data["Kategoria główna"].isin(selected_category)]
 
-if "Liczba sztuk" in data.columns:
-    filtered_data = filtered_data[
-        (filtered_data["Liczba sztuk"] >= min_sztuk) & (filtered_data["Liczba sztuk"] <= max_sztuk)
-    ]
+if "Typ pamięci RAM" in data.columns:
+    filtered_data = filtered_data[filtered_data["Typ pamięci RAM"].isin(selected_ram_type)]
 
-if "Ekran dotykowy" in data.columns:
-    filtered_data = filtered_data[filtered_data["Ekran dotykowy"].isin(selected_touchscreen)]
+if "Wielkość pamięci RAM" in data.columns:
+    filtered_data = filtered_data[filtered_data["Wielkość pamięci RAM"].isin(selected_ram_size)]
+
+if "Typ dysku twardego" in data.columns:
+    filtered_data = filtered_data[filtered_data["Typ dysku twardego"].isin(selected_hdd_type)]
+
+if "Pojemność dysku [GB]" in data.columns:
+    filtered_data = filtered_data[filtered_data["Pojemność dysku [GB]"].isin(selected_hdd_capacity)]
+
+if "Model procesora.1" in data.columns:
+    filtered_data = filtered_data[filtered_data["Model procesora.1"].isin(selected_cpu_model)]
 
 if "Cena PL" in data.columns:
     filtered_data = filtered_data[
         (filtered_data["Cena PL"] >= min_price) & (filtered_data["Cena PL"] <= max_price)
     ]
-
-if "Seria procesora" in data.columns:
-    filtered_data = filtered_data[filtered_data["Seria procesora"].isin(selected_cpu_series)]
-
-if "Przekątna ekranu [\"]" in data.columns:
-    filtered_data = filtered_data[filtered_data["Przekątna ekranu [\"]"].isin(selected_screen_size)]
-
-if "Liczba rdzeni procesora" in data.columns:
-    filtered_data = filtered_data[filtered_data["Liczba rdzeni procesora"].isin(selected_core_count)]
-
-if "Rodzaj karty graficznej" in data.columns:
-    filtered_data = filtered_data[filtered_data["Rodzaj karty graficznej"].isin(selected_gpu_type)]
-
-if "Rozdzielczość (px)" in data.columns:
-    filtered_data = filtered_data[filtered_data["Rozdzielczość (px)"].isin(selected_resolution)]
 
 # Wyświetl tabelę z przetworzonymi opisami
 st.title("Tabela z przetworzonymi opisami i filtrami")
@@ -180,24 +155,3 @@ st.download_button(
     file_name="przetworzona_tabela.csv",
     mime="text/csv",
 )
-
-
-# Dodanie własnej stopki
-custom_footer = """
-    <style>
-    footer {
-        visibility: hidden;
-    }
-    .css-1outpf7 {
-        visibility: visible;
-        text-align: center;
-        color: black;
-        font-size: 12px;
-        padding: 10px;
-    }
-    </style>
-    <div class="css-1outpf7">
-        Aplikacja © 2025 | Wszelkie prawa zastrzeżone
-    </div>
-"""
-st.markdown(custom_footer, unsafe_allow_html=True)
