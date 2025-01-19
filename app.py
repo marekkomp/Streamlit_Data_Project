@@ -148,6 +148,9 @@ st.title("Tabela z przetworzonymi opisami i filtrami")
 st.write("Tabela zawiera oryginalne dane oraz przetworzony opis w nowej kolumnie:")
 st.dataframe(filtered_data)
 
+# Wyświetl liczbę wierszy pod tabelą
+st.write(f"Liczba wierszy po zastosowaniu filtrów: {len(filtered_data)}")
+
 # Pobieranie przetworzonej tabeli
 st.download_button(
     label="Pobierz przetworzoną tabelę",
