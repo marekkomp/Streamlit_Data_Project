@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 
 # Funkcja do porównywania danych
-
 def compare_csv_files(df1, df2):
     id_column = 'ID oferty'
 
@@ -23,8 +22,15 @@ def compare_csv_files(df1, df2):
         df2_row = df2[df2[id_column] == id_value].iloc[0]
 
         # Porównujemy wartości w kolumnach
-        if not df1_row.equals(df2_row):
-            differences.append(df2_row)
+        diff_row = {}
+        for col in df1.columns:
+            if df1_row[col] != df2_row[col]:
+                diff_row[col] = f"{df2_row[col]} (zmienione z {df1_row[col]})"
+            else:
+                diff_row[col] = df2_row[col]
+
+        if diff_row:
+            differences.append(diff_row)
 
     # Tworzymy DataFrame z różnicami
     changed_rows = pd.DataFrame(differences, columns=df2.columns)
@@ -33,6 +39,13 @@ def compare_csv_files(df1, df2):
     result = pd.concat([new_rows, changed_rows], ignore_index=True)
 
     return result
+
+# Funkcja do stylowania różnic
+def highlight_differences(row):
+    return [
+        'background-color: yellow' if '(zmienione z' in str(value) else ''
+        for value in row
+    ]
 
 # Aplikacja Streamlit
 st.title("Porównanie dwóch plików CSV")
@@ -58,7 +71,9 @@ if uploaded_file1 and uploaded_file2:
     # Wyświetlanie wyników
     st.subheader("Różnice między plikami")
     if not differences.empty:
-        st.dataframe(differences)
+        # Stylowanie różnic w tabeli
+        styled_differences = differences.style.apply(highlight_differences, axis=1)
+        st.dataframe(styled_differences)
     else:
         st.write("Brak różnic między plikami.")
 
