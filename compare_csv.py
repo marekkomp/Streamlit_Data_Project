@@ -14,11 +14,11 @@ def compare_csv_files(df1, df2):
     # Znalezienie różnic w kolumnach oprócz ID
     different_rows = merged[merged.filter(like='_file1').ne(merged.filter(like='_file2')).any(axis=1)]
 
-    # Zwrócenie wierszy z drugiego pliku dla różnic w istniejących ID
-    differences = df2[df2[id_column].isin(different_rows[id_column])]
+    # Pobranie tylko zmienionych wierszy z drugiego pliku
+    changed_rows = df2[df2[id_column].isin(different_rows[id_column])]
 
     # Łączenie nowych wierszy i różnic w istniejących ID
-    result = pd.concat([new_rows, differences], ignore_index=True)
+    result = pd.concat([new_rows, changed_rows], ignore_index=True)
 
     return result
 
