@@ -22,7 +22,7 @@ def compare_csv_files(df1, df2):
         df1_row = row
         df2_row = df2[df2[id_column] == id_value].iloc[0]
 
-        # Porównujemy wartości w kolumnach i zaznaczamy różnice
+        # Porównujemy wartości w kolumnach i zbieramy tylko te, które się różnią
         changed_row = {}
         for col in df1.columns:
             if df1_row[col] != df2_row[col]:
@@ -30,11 +30,11 @@ def compare_csv_files(df1, df2):
             else:
                 changed_row[col] = df2_row[col]
 
-        if changed_row:
+        if any(df1_row[col] != df2_row[col] for col in df1.columns):
             differences.append(changed_row)
 
     # Tworzymy DataFrame z różnicami
-    changed_rows = pd.DataFrame(differences, columns=df2.columns)
+    changed_rows = pd.DataFrame(differences, columns=df2.columns) if differences else pd.DataFrame()
 
     # Łączenie nowych wierszy i zmienionych wierszy
     result = pd.concat([new_rows, changed_rows], ignore_index=True)
