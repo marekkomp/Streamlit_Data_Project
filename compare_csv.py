@@ -25,7 +25,7 @@ def compare_csv_files(df1, df2):
         diff_row = {}
         for col in df1.columns:
             if df1_row[col] != df2_row[col]:
-                diff_row[col] = f"{df2_row[col]} (zmienione z {df1_row[col]})"
+                diff_row[col] = f"<span style='background-color: yellow'>{df2_row[col]} (zmienione z {df1_row[col]})</span>"
             else:
                 diff_row[col] = df2_row[col]
 
@@ -39,13 +39,6 @@ def compare_csv_files(df1, df2):
     result = pd.concat([new_rows, changed_rows], ignore_index=True)
 
     return result
-
-# Funkcja do stylowania różnic
-def highlight_differences(row):
-    return [
-        'background-color: yellow' if '(zmienione z' in str(value) else ''
-        for value in row
-    ]
 
 # Aplikacja Streamlit
 st.title("Porównanie dwóch plików CSV")
@@ -71,9 +64,8 @@ if uploaded_file1 and uploaded_file2:
     # Wyświetlanie wyników
     st.subheader("Różnice między plikami")
     if not differences.empty:
-        # Stylowanie różnic w tabeli
-        styled_differences = differences.style.apply(highlight_differences, axis=1)
-        st.dataframe(styled_differences)
+        # Wyświetlanie tabeli w formacie HTML
+        st.write(differences.to_html(escape=False), unsafe_allow_html=True)
     else:
         st.write("Brak różnic między plikami.")
 
