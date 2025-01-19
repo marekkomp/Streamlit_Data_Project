@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Funkcja do porównywania danych
-
 def compare_csv_files(df1, df2, id_column):
     # Łączenie danych na podstawie ID oferty
     merged = pd.merge(df1, df2, on=id_column, how='outer', suffixes=('_file1', '_file2'), indicator=True)
@@ -10,11 +10,21 @@ def compare_csv_files(df1, df2, id_column):
     # Znalezienie różnic tylko w wierszach o wspólnych ID
     differences = merged[(merged['_merge'] == 'both') & (merged.filter(like='_file1').ne(merged.filter(like='_file2')).any(axis=1))]
 
-    # Zwrócenie wierszy z drugiego pliku dla różnic
-    differences = differences[[col for col in differences.columns if col.endswith('_file2') or col == id_column]]
-    differences.columns = [col.replace('_file2', '') for col in differences.columns]  # Usunięcie sufiksów dla przejrzystości
+    # Tworzenie DataFrame z różnicami
+    diff_highlighted = differences.copy()
+    for col in df1.columns:
+        if col != id_column and f"{col}_file1" in differences.columns and f"{col}_file2" in differences.columns:
+            diff_highlighted[col] = np.where(
+                differences[f"{col}_file1"] != differences[f"{col}_file2"],
+                f"**{differences[f'{col}_file2']}**",
+                differences[f"{col}_file2"]
+            )
 
-    return differences
+    # Zwrócenie wyników tylko z wyróżnionymi różnicami
+    result = diff_highlighted[[col for col in differences.columns if col.endswith('_file2') or col == id_column]]
+    result.columns = [col.replace('_file2', '') for col in result.columns]  # Usunięcie sufiksów dla przejrzystości
+
+    return result
 
 # Aplikacja Streamlit
 st.title("Porównanie dwóch plików CSV")
@@ -44,7 +54,8 @@ if uploaded_file1 and uploaded_file2:
         # Wyświetlanie wyników
         st.subheader("Różnice między plikami")
         if not differences.empty:
-            st.dataframe(differences)
+            st.write("Tabela z wyróżnionymi różnicami:")
+            st.markdown(differences.to_markdown(index=False), unsafe_allow_html=True)
         else:
             st.write("Brak różnic między plikami.")
 
