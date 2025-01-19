@@ -16,7 +16,7 @@ def compare_csv_files(df1, df2, id_column):
         if col != id_column and f"{col}_file1" in differences.columns and f"{col}_file2" in differences.columns:
             diff_highlighted[col] = np.where(
                 differences[f"{col}_file1"] != differences[f"{col}_file2"],
-                f"**{differences[f'{col}_file2']}**",
+                f"<b>{differences[f'{col}_file2']}</b>",
                 differences[f"{col}_file2"]
             )
 
@@ -55,7 +55,7 @@ if uploaded_file1 and uploaded_file2:
         st.subheader("Różnice między plikami")
         if not differences.empty:
             st.write("Tabela z wyróżnionymi różnicami:")
-            st.markdown(differences.to_markdown(index=False), unsafe_allow_html=True)
+            st.write(differences.to_html(escape=False, index=False), unsafe_allow_html=True)
         else:
             st.write("Brak różnic między plikami.")
 
