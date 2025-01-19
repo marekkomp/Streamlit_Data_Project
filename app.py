@@ -33,7 +33,7 @@ def process_description(raw_description):
 # Wczytywanie danych
 try:
     # Wczytaj plik CSV
-    data = pd.read_csv("test.csv")
+    data = pd.read_csv("1.csv")
 
     st.title("Aplikacja do filtrowania i przetwarzania opisów")
     st.write("Filtrujemy dane i przekształcamy opis oferty na czytelny tekst.")
