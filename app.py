@@ -11,7 +11,7 @@ def clean_html(raw_html):
 # Wczytywanie danych
 try:
     # Wczytaj plik CSV
-    data = pd.read_csv("test.csv")
+    data = pd.read_csv("1.csv")
 
     st.title("Aplikacja do filtrowania i przetwarzania danych")
     st.write("Filtrujemy dane i przekształcamy opis oferty na czytelny tekst.")
